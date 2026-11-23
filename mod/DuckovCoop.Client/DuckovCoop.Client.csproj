@@ -1,0 +1,111 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>DuckovCoopClient</AssemblyName>
+    <RootNamespace>DuckovCoopClient</RootNamespace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DuckovManaged Condition="'$(DuckovManaged)' == ''">$(DUCKOV_MANAGED)</DuckovManaged>
+    <DuckovMods Condition="'$(DuckovMods)' == ''">$(DUCKOV_MODS)</DuckovMods>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\client\DuckovCoop.Client\DuckovCoop.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\server\data\config\base_stats.hash" Link="base_stats.hash">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>lib\0Harmony.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="TeamSoda.Duckov.Core">
+      <HintPath>$(DuckovManaged)\TeamSoda.Duckov.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TeamSoda.Duckov.Utilities">
+      <HintPath>$(DuckovManaged)\TeamSoda.Duckov.Utilities.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(DuckovManaged)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ItemStatsSystem">
+      <HintPath>$(DuckovManaged)\ItemStatsSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.AnimationModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(DuckovManaged)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.AIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>$(DuckovManaged)\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UniTask">
+      <HintPath>$(DuckovManaged)\UniTask.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="DeployToMods" AfterTargets="Build">
+    <PropertyGroup>
+      <_ModDir>$(DuckovMods)\DuckovCoopClient</_ModDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(_ModDir)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(OutputPath)DuckovCoop.Client.dll" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(OutputPath)base_stats.hash" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)base_stats.hash')" />
+    <Copy SourceFiles="$(OutputPath)0Harmony.dll" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)0Harmony.dll')" />
+    <Copy SourceFiles="info.ini" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" />
+    <!-- Seed coop.ini only on a fresh install: every build used to clobber the deployed
+         host/port/name (e.g. the cloud server address) with the template defaults. -->
+    <Copy SourceFiles="coop.ini" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" Condition="Exists('coop.ini') And !Exists('$(_ModDir)\coop.ini')" />
+    <Copy SourceFiles="scenes.txt" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" Condition="Exists('scenes.txt')" />
+    <Copy SourceFiles="container_spawns.txt" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" Condition="Exists('container_spawns.txt')" />
+    <Copy SourceFiles="monsters.catalog.json" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" Condition="Exists('monsters.catalog.json')" />
+    <Copy SourceFiles="monsters.catalog.hash" DestinationFolder="$(_ModDir)" SkipUnchangedFiles="true" Condition="Exists('monsters.catalog.hash')" />
+    <Message Text="deployed to $(_ModDir)" Importance="High" />
+  </Target>
+
+</Project>
